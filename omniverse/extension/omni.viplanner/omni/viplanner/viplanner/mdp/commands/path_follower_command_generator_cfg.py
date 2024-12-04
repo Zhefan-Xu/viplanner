@@ -57,3 +57,5 @@ class PathFollowerCommandGeneratorCfg(CommandTermCfg):
 
     dynamic_lookahead: bool = False
     min_points_within_lookahead: int = 3
+
+    resampling_time_range=(10.0, 10.0)
