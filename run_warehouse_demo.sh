@@ -1,0 +1,1 @@
+python ~/experiment/viplanner/omniverse/standalone/viplanner_demo.py --scene warehouse --model_dir ~/experiment/viplanner/ckpt

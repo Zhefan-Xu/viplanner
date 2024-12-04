@@ -180,9 +180,11 @@ class ViPlannerBaseCfg(ManagerBasedRLEnvCfg):
         """Post initialization."""
         # general settings
         self.decimation = 20  # 10 Hz
+        
         self.episode_length_s = 60.0
         # simulation settings
         self.sim.dt = 0.005
+        self.sim.render_interval = 0.5 * self.decimation # 20 hz rendering
         self.sim.disable_contact_processing = True
         self.sim.physics_material.static_friction = 1.0
         self.sim.physics_material.dynamic_friction = 1.0
