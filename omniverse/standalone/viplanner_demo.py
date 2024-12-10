@@ -135,6 +135,7 @@ def main():
         goal_cam_frame = viplanner.goal_transformer(
             goals, obs["planner_transform"]["cam_position"], obs["planner_transform"]["cam_orientation"]
         )
+        print(obs["planner_image"]["semantic_measurement"])
         _, paths, fear = viplanner.plan_dual(
             obs["planner_image"]["depth_measurement"], obs["planner_image"]["semantic_measurement"], goal_cam_frame
         )

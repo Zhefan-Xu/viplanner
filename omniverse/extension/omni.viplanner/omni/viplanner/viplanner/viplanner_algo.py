@@ -16,7 +16,7 @@ from viplanner.config import TrainCfg
 # viplanner
 from viplanner.plannernet import AutoEncoder, DualAutoEncoder
 from viplanner.traj_cost_opt.traj_opt import TrajOpt
-
+import pickle
 """
 VIPlanner Helpers
 """
@@ -60,6 +60,7 @@ class VIPlannerAlgo:
         self.color_fear = [(1.0, 0.4, 0.1, 1.0)]  # red
         self.color_path = [(0.4, 1.0, 0.1, 1.0)]  # green
         self.size = [5.0]
+        self.call_count = 0
 
     def load_model(self, model_dir: str):
         # load train config
@@ -129,6 +130,10 @@ class VIPlannerAlgo:
     # Planning
     ###
 
+    def save_data(self, filename, data):
+        with open(filename, 'wb') as file:
+            pickle.dump(data, file)
+
     def plan(self, image: torch.Tensor, goal_robot_frame: torch.Tensor) -> tuple:
         with torch.no_grad():
             keypoints, fear = self.net(self.input_transformer(image), goal_robot_frame)
@@ -137,12 +142,30 @@ class VIPlannerAlgo:
         return keypoints, traj, fear
 
     def plan_dual(self, dep_image: torch.Tensor, sem_image: torch.Tensor, goal_robot_frame: torch.Tensor) -> tuple:
+        # print(sem_image)
         # transform input
+        input_data = {
+            "dep_image": dep_image.cpu(), 
+            "sem_image": sem_image.cpu(), 
+            "goal_robot_frame": goal_robot_frame.cpu()
+        }
+        print(sem_image.cpu().size())
+        input_filename = f"input_data_call_{self.call_count}.pkl"
+        # self.save_data(input_filename, input_data)
+
         sem_image = self.transform(sem_image) / 255
         with torch.no_grad():
             keypoints, fear = self.net(self.input_transformer(dep_image), sem_image, goal_robot_frame)
         traj = self.traj_generate.TrajGeneratorFromPFreeRot(keypoints, step=0.1)
 
+        output_data = {
+            "keypoints": keypoints.cpu(),
+            "traj": traj,  # Assuming traj is a serializable object
+            "fear": fear.cpu()
+        }
+        output_filename = f"output_data_call_{self.call_count}.pkl"
+        # self.save_data(output_filename, output_data)
+        self.call_count += 1
         return keypoints, traj, fear
 
     ###
